@@ -3,7 +3,7 @@ DO $$
 DECLARE
     var_dept_id 	INTEGER;
     var_role_id 	INTEGER;
-    var_emp_id 	INTEGER;
+    var_emp_id 	    INTEGER;
 BEGIN
     INSERT INTO department (name) VALUES ('Information Technology') RETURNING id INTO var_dept_id;
     INSERT INTO role (title, salary, department_id) VALUES ('Director', 255000.00, var_dept_id) RETURNING id INTO var_role_id;
