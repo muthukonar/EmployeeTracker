@@ -4,6 +4,8 @@ import { connectToDb } from './db/connection.js';
 await connectToDb();
 import { 
     viewAllDepartments,
+    viewAllRoles,
+    viewAllEmployees,
     addDepartment
 } from './db/index.js';
 
@@ -14,6 +16,8 @@ const mainMenu = async () => {
     message: 'What would you like to do?',
     choices: [
       'View all departments',
+      'View all roles',
+      'View all employees',
       'Add a Department',
       'Exit'
     ]
@@ -22,6 +26,12 @@ const mainMenu = async () => {
    switch (answers.action) {
     case 'View all departments':
       await viewAllDepartments();
+      break;
+    case 'View all roles':
+      await viewAllRoles();
+      break;
+    case 'View all employees':
+      await viewAllEmployees();
       break;
     case 'Add a Department':
           await addDepartment();

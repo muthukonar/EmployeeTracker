@@ -8,12 +8,31 @@ import { QueryResult } from 'pg';
 export const viewAllDepartments = async (): Promise<void> => {
   try {
     const result: QueryResult = await pool.query('SELECT * FROM department');
-    console.log(result.rows);
+    console.table(result.rows);
   } catch (err) {
     console.error('Error fetching departments:', err);
   }
 };
 
+// Query all roles from the Role table
+export const viewAllRoles = async (): Promise<void> => {
+  try {
+    const result: QueryResult = await pool.query('SELECT * FROM role');
+    console.table(result.rows);
+  } catch (err) {
+    console.error('Error fetching roles:', err);
+  }
+};
+
+// Query all employee from the Employee table
+export const viewAllEmployees = async (): Promise<void> => {
+  try {
+    const result: QueryResult = await pool.query('SELECT * FROM employee');
+    console.table(result.rows);
+  } catch (err) {
+    console.error('Error fetching employees:', err);
+  }
+};
 
 //Add a Department
 export const addDepartment = async (): Promise<void> => {
