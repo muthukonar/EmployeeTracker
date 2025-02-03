@@ -8,7 +8,19 @@ import { QueryResult } from 'pg';
 export const viewAllDepartments = async (): Promise<void> => {
   try {
     const result: QueryResult = await pool.query('SELECT * FROM department');
-    console.table(result.rows);
+    const rows = result.rows;
+    const col1Width = Math.max(...rows.map(row => row.id.toString().length), 4);
+    const col2Width = Math.max(...rows.map(row => row.name.length), 10);
+
+    const namePaddingLeft = Math.floor((col2Width - 4) / 2);
+    const namePaddingRight = col2Width - 4 - namePaddingLeft;
+    console.log(` id${' '.repeat(col1Width - 2)}${' '.repeat(namePaddingLeft)}name${' '.repeat(namePaddingRight)}`);
+
+    console.log(`---- ${'-'.repeat(col2Width)} `);
+    rows.forEach(row => {
+      console.log(` ${row.id}${' '.repeat(col1Width - row.id.toString().length)} ${row.name}${' '.repeat(col2Width - row.name.length)}`);
+    });
+
   } catch (err) {
     console.error('Error fetching departments:', err);
   }
