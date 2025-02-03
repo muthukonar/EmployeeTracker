@@ -44,7 +44,7 @@ const mainMenu = async () => {
     case 'Exit':
 
       console.log('Exiting...');
-      return; 
+      process.exit(0);
     default:
       console.log("Invalid action");
   }
