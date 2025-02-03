@@ -12,7 +12,7 @@ export const viewAllDepartments = async (): Promise<void> => {
     const col1Width = Math.max(...rows.map(row => row.id.toString().length), 4);
     const col2Width = Math.max(...rows.map(row => row.name.length), 30);
 
-   console.log(` id${' '.repeat(col1Width - 3)} name`);
+    console.log(` id${' '.repeat(col1Width - 3)} name`);
 
     console.log(`---- ${'-'.repeat(col2Width)} `);
     rows.forEach(row => {
@@ -65,19 +65,19 @@ export const viewAllEmployees = async (): Promise<void> => {
         LEFT JOIN employee manager ON employee.manager_id = manager.id`);
     const rows = result.rows;
 
-    const col1Width = Math.max(...rows.map(row => row.id.toString().length), 4); 
-    const col2Width = Math.max(...rows.map(row => row.first_name.length), 15);   
-    const col3Width = Math.max(...rows.map(row => row.last_name.length), 15);    
-    const col4Width = Math.max(...rows.map(row => row.title.length), 15);  
-    const col5Width = Math.max(...rows.map(row => row.department.length), 15);  
-    const col6Width = Math.max(...rows.map(row => row.salary.toString().length), 15);  
+    const col1Width = Math.max(...rows.map(row => row.id.toString().length), 4);
+    const col2Width = Math.max(...rows.map(row => row.first_name.length), 15);
+    const col3Width = Math.max(...rows.map(row => row.last_name.length), 15);
+    const col4Width = Math.max(...rows.map(row => row.title.length), 15);
+    const col5Width = Math.max(...rows.map(row => row.department.length), 15);
+    const col6Width = Math.max(...rows.map(row => row.salary.toString().length), 15);
     const col7Width = Math.max(...rows.map(row => row.manager ? row.manager.length : null), 15);
 
     console.log(` id${' '.repeat(col1Width - 3)} first_name${' '.repeat(col2Width - 10)} last_name${' '.repeat(col3Width - 9)} title ${' '.repeat(col4Width - 6)} department ${' '.repeat(col5Width - 11)} salary ${' '.repeat(col6Width - 7)} manager`);
     console.log(`---- ${'-'.repeat(col2Width)} ${'-'.repeat(col3Width)} ${'-'.repeat(col4Width)} ${'-'.repeat(col5Width)} ${'-'.repeat(col6Width)} ${'-'.repeat(col7Width)}`);
 
     rows.forEach(row => {
-      
+
       console.log(
         ` ${row.id}${' '.repeat(col1Width - row.id.toString().length)} ` +
         `${row.first_name}${' '.repeat(col2Width - row.first_name.length)} ` +
@@ -94,26 +94,26 @@ export const viewAllEmployees = async (): Promise<void> => {
     console.error('Error fetching employees:', err);
   }
 };
-  
+
 
 //Add a Department
 export const addDepartment = async (): Promise<void> => {
-  const {name} = await inquirer.prompt({
+  const { name } = await inquirer.prompt({
     type: 'input',
     name: 'name',
     message: 'Please enter department name',
-    });
+  });
 
-    if (!name.trim()) {
-      console.log('Department name should not be empty. Please enter a valid department name');
-      return;  
-    }
+  if (!name.trim()) {
+    console.log('Department name should not be empty. Please enter a valid department name');
+    return;
+  }
 
   try {
-    const result: QueryResult = await pool.query('INSERT INTO department (name) VALUES ($1)',[name]);
-    console.log(`Department "${name}" added successfully!`),result;
+    const result: QueryResult = await pool.query('INSERT INTO department (name) VALUES ($1)', [name]);
+    console.log(`Department "${name}" added successfully!`), result;
   } catch (err) {
-    console.error(`Error adding Department "${name}"`,err);
+    console.error(`Error adding Department "${name}"`, err);
   }
 };
 
@@ -122,33 +122,86 @@ export const addDepartment = async (): Promise<void> => {
 export const addRole = async (): Promise<void> => {
   const dept = await pool.query('SELECT * FROM department');
   const deptChoices = dept.rows.map(department => ({
-      name: department.name,
-      value: department.id
+    name: department.name,
+    value: department.id
   }));
 
   const { title, salary, department_id } = await inquirer.prompt([
     {
-        type: 'input',
-        name: 'title',
-        message: 'What is the name of the role?'
+      type: 'input',
+      name: 'title',
+      message: 'What is the name of the role?'
     },
     {
-        type: 'input',
-        name: 'salary',
-        message: 'What is the salary of the role?'
+      type: 'input',
+      name: 'salary',
+      message: 'What is the salary of the role?'
     },
     {
-        type: 'list',
-        name: 'department_id',
-        message: 'Which department does the role belong to?',
-        choices: deptChoices
+      type: 'list',
+      name: 'department_id',
+      message: 'Which department does the role belong to?',
+      choices: deptChoices
     }
-]);
+  ]);
   try {
     const result: QueryResult = await pool.query('INSERT INTO role (title, salary, department_id) VALUES ($1, $2, $3)', [title, salary, department_id]);
-    console.log(`Role "${title}" added successfully!`),result;
+    console.log(`Role "${title}" added successfully!`), result;
   } catch (err) {
-    console.error(`Error adding Role "${title}"`,err);
+    console.error(`Error adding Role "${title}"`, err);
+  }
+};
+
+
+//Add an employee
+
+export const addEmployee = async (): Promise<void> => {
+  const roles = await pool.query('SELECT * FROM role');
+  const employees = await pool.query('SELECT id, first_name, last_name FROM employee');
+
+  const roleChoices = roles.rows.map(role => ({
+    name: role.title,
+    value: role.id
+  }));
+
+  const managerChoices = employees.rows.map(employee => ({
+    name: `${employee.first_name} ${employee.last_name}`,
+    value: employee.id
+  }));
+
+  managerChoices.push({ name: 'None', value: null });
+
+  const { first_name, last_name, role_id, manager_id } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'first_name',
+      message: 'What is the employees\'s first name? '
+    },
+    {
+      type: 'input',
+      name: 'last_name',
+      message: 'What is the employees\'s last name?'
+    },
+    {
+      type: 'list',
+      name: 'role_id',
+      message: 'What is the employees\'s role?',
+      choices: roleChoices
+    },
+    {
+      type: 'list',
+      name: 'manager_id',
+      message: 'Who is the employees\'s manager?',
+      choices: managerChoices
+    }
+  ]);
+  try {
+    const result: QueryResult = await pool.query(
+      'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)', [first_name, last_name, role_id, manager_id]);
+    console.log(`Employee ${first_name} ${last_name} added successfully!`), result;
+  }
+  catch (err) {
+    console.error(`Error adding Role "${first_name} ${last_name}"`, err);
   }
 };
 

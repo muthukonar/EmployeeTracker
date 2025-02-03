@@ -2,16 +2,17 @@ import inquirer from 'inquirer';
 import { connectToDb } from './db/connection.js';
 
 await connectToDb();
-import { 
-    viewAllDepartments,
-    viewAllRoles,
-    viewAllEmployees,
-    addDepartment,
-    addRole
+import {
+  viewAllDepartments,
+  viewAllRoles,
+  viewAllEmployees,
+  addDepartment,
+  addRole,
+  addEmployee
 } from './db/index.js';
 
 const mainMenu = async () => {
-   const answers = await inquirer.prompt({
+  const answers = await inquirer.prompt({
     type: 'list',
     name: 'action',
     message: 'What would you like to do?',
@@ -21,11 +22,12 @@ const mainMenu = async () => {
       'View all employees',
       'Add a Department',
       'Add a Role',
+      'Add an Employee',
       'Exit'
     ]
   });
 
-   switch (answers.action) {
+  switch (answers.action) {
     case 'View all departments':
       await viewAllDepartments();
       break;
@@ -36,11 +38,14 @@ const mainMenu = async () => {
       await viewAllEmployees();
       break;
     case 'Add a Department':
-          await addDepartment();
-          break;
-          case 'Add a Role':
-          await addRole();
-          break;
+      await addDepartment();
+      break;
+    case 'Add a Role':
+      await addRole();
+      break;
+    case 'Add an Employee':
+      await addEmployee();
+      break;
     case 'Exit':
 
       console.log('Exiting...');
@@ -51,7 +56,7 @@ const mainMenu = async () => {
 
 
 
-    await mainMenu();
+  await mainMenu();
 };
 
 
