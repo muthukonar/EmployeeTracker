@@ -84,6 +84,7 @@ export const viewAllEmployees = async (): Promise<void> => {
       );
     });
 
+    
   } catch (err) {
     console.error('Error fetching employees:', err);
   }
