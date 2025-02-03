@@ -55,3 +55,38 @@ export const addDepartment = async (): Promise<void> => {
   }
 };
 
+
+//Add a Role
+export const addRole = async (): Promise<void> => {
+  const dept = await pool.query('SELECT * FROM department');
+  const deptChoices = dept.rows.map(department => ({
+      name: department.name,
+      value: department.id
+  }));
+
+  const { title, salary, department_id } = await inquirer.prompt([
+    {
+        type: 'input',
+        name: 'title',
+        message: 'What is the name of the role?'
+    },
+    {
+        type: 'input',
+        name: 'salary',
+        message: 'What is the salary of the role?'
+    },
+    {
+        type: 'list',
+        name: 'department_id',
+        message: 'Which department does the role belong to?',
+        choices: deptChoices
+    }
+]);
+  try {
+    const result: QueryResult = await pool.query('INSERT INTO role (title, salary, department_id) VALUES ($1, $2, $3)', [title, salary, department_id]);
+    console.log(`Role "${title}" added successfully!`),result;
+  } catch (err) {
+    console.error(`Error adding Role "${title}"`,err);
+  }
+};
+

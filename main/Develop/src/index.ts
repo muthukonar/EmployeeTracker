@@ -6,7 +6,8 @@ import {
     viewAllDepartments,
     viewAllRoles,
     viewAllEmployees,
-    addDepartment
+    addDepartment,
+    addRole
 } from './db/index.js';
 
 const mainMenu = async () => {
@@ -19,6 +20,7 @@ const mainMenu = async () => {
       'View all roles',
       'View all employees',
       'Add a Department',
+      'Add a Role',
       'Exit'
     ]
   });
@@ -36,7 +38,11 @@ const mainMenu = async () => {
     case 'Add a Department':
           await addDepartment();
           break;
+          case 'Add a Role':
+          await addRole();
+          break;
     case 'Exit':
+
       console.log('Exiting...');
       return; 
     default:
