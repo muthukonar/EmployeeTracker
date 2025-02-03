@@ -29,22 +29,24 @@ export const viewAllDepartments = async (): Promise<void> => {
 // Query all roles from the Role table
 export const viewAllRoles = async (): Promise<void> => {
   try {
-    const result: QueryResult = await pool.query('SELECT * FROM role');
+    const result: QueryResult = await pool.query(`SELECT role.id, role.title, role.salary, department.name as department 
+        FROM role
+        JOIN department ON role.department_id = department.id`);
     const rows = result.rows;
     const col1Width = Math.max(...rows.map(row => row.id.toString().length), 4);
     const col2Width = Math.max(...rows.map(row => row.title.length), 10);
     const col3Width = Math.max(...rows.map(row => row.salary.toString().length), 10);
-    const col4Width = Math.max(...rows.map(row => row.department_id.toString().length), 4);
+    const col4Width = Math.max(...rows.map(row => row.department.length), 30);
 
 
-    const namePaddingLeft = Math.floor((col2Width - 4) / 2);
-    const namePaddingRight = col2Width - 4 - namePaddingLeft;
-    console.log(` id${' '.repeat(col1Width - 2)}${' '.repeat(namePaddingLeft)}title${' '.repeat(namePaddingRight)}`);
-    console.log(` id${' '.repeat(col1Width - 2)} title${' '.repeat(col2Width - 5)} salary${' '.repeat(col3Width - 6)} department_id`);
+    const titlePaddingLeft = Math.floor((col2Width - 4) / 2);
+    const titlePaddingRight = col2Width - 4 - titlePaddingLeft;
+    console.log(` id${' '.repeat(col1Width - 2)}${' '.repeat(titlePaddingLeft)}title${' '.repeat(titlePaddingRight)}`);
+    console.log(` id${' '.repeat(col1Width - 2)} title${' '.repeat(col2Width - 5)} salary${' '.repeat(col3Width - 6)} department`);
     console.log(`---- ${'-'.repeat(col2Width)} ${'-'.repeat(col3Width)} ${'-'.repeat(col4Width)}`);
 
     rows.forEach(row => {
-      console.log(` ${row.id}${' '.repeat(col1Width - row.id.toString().length)} ${row.title}${' '.repeat(col2Width - row.title.length)} ${row.salary}${' '.repeat(col3Width - row.salary.toString().length)} ${row.department_id}${' '.repeat(col4Width - row.department_id.toString().length)}`);
+      console.log(` ${row.id}${' '.repeat(col1Width - row.id.toString().length)} ${row.title}${' '.repeat(col2Width - row.title.length)} ${row.salary}${' '.repeat(col3Width - row.salary.toString().length)} ${row.department}${' '.repeat(col4Width - row.department.length)}`);
     });
 
   } catch (err) {
@@ -53,28 +55,32 @@ export const viewAllRoles = async (): Promise<void> => {
 };
 
 
+
+
+
 // Query all employees from the Employee table
 
 export const viewAllEmployees = async (): Promise<void> => {
   try {
-    const result: QueryResult = await pool.query('SELECT * FROM employee');
+    const result: QueryResult = await pool.query(`SELECT * FROM employee`);
     const rows = result.rows;
 
     const col1Width = Math.max(...rows.map(row => row.id.toString().length), 4); 
-    const col2Width = Math.max(...rows.map(row => row.first_name.length), 10);   
-    const col3Width = Math.max(...rows.map(row => row.last_name.length), 10);    
+    const col2Width = Math.max(...rows.map(row => row.first_name.length), 30);   
+    const col3Width = Math.max(...rows.map(row => row.last_name.length), 30);    
     const col4Width = Math.max(...rows.map(row => row.role_id.toString().length), 4);  
-    const col5Width = Math.max(...rows.map(row => row.manager_id ? row.manager_id.toString().length : 0), 4);
+    const col5Width = Math.max(...rows.map(row => row.manager ? row.manager.length : null), 30);
 
-    const namePaddingLeft = Math.floor((col2Width - 'first_name'.length) / 2);
-    const namePaddingRight = col2Width - 'first_name'.length - namePaddingLeft;
+    const namePaddingLeft = Math.floor((col2Width - 4) / 2);
+    const namePaddingRight = col2Width - 4 - namePaddingLeft;
 
     console.log(` id${' '.repeat(col1Width - 2)}${' '.repeat(namePaddingLeft)}first_name${' '.repeat(namePaddingRight)}last_name${' '.repeat(col3Width - 6)}role_id${' '.repeat(col4Width - 2)}manager_id`);
     
     console.log(`${'--'.repeat(col1Width - 2)} ${'-'.repeat(col2Width)} ${'-'.repeat(col3Width)} ${'--'.repeat(col4Width)} ${'---'.repeat(col5Width)}`);
 
     rows.forEach(row => {
-      const managerId = row.manager_id ? row.manager_id.toString() : '';
+      // const managerId = row.manager_id ? row.manager_id.toString() : '';
+      const managerId = row.manager_id != null ? row.manager_id.toString() : 'null';
       console.log(
         ` ${row.id}${' '.repeat(col1Width - row.id.toString().length)} ` +
         `${row.first_name}${' '.repeat(col2Width - row.first_name.length)} ` +
@@ -84,7 +90,7 @@ export const viewAllEmployees = async (): Promise<void> => {
       );
     });
 
-    
+
   } catch (err) {
     console.error('Error fetching employees:', err);
   }
