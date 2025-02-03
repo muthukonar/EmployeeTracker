@@ -41,6 +41,12 @@ export const addDepartment = async (): Promise<void> => {
     name: 'name',
     message: 'Please enter department name',
     });
+
+    if (!name.trim()) {
+      console.log('Department name should not be empty. Please enter a valid department name');
+      return;  
+    }
+
   try {
     const result: QueryResult = await pool.query('INSERT INTO department (name) VALUES ($1)',[name]);
     console.log(`Department "${name}" added successfully!`),result;
@@ -48,3 +54,4 @@ export const addDepartment = async (): Promise<void> => {
     console.error(`Error adding Department "${name}"`,err);
   }
 };
+
