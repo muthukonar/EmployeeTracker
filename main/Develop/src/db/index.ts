@@ -251,3 +251,40 @@ export const updateEmployeeRole = async (): Promise<void> => {
   }
 
 };
+
+
+//Update an Employee Manager
+
+export const updateEmployeeManager = async (): Promise<void> => {
+  const employees = await pool.query('SELECT id, first_name, last_name FROM employee');
+
+  const employeeChoices = employees.rows.map(employee => ({
+    name: `${employee.first_name} ${employee.last_name}`,
+    value: employee.id
+  }));
+
+  const { employee_id, manager_id } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'employee_id',
+      message: 'Which employee do you want to update?',
+      choices: employeeChoices
+    },
+    {
+      type: 'list',
+      name: 'manager_id',
+      message: 'Select a new manager for the employee:',
+      choices: employeeChoices
+    }
+  ]);
+
+  try {
+    const result: QueryResult = 
+  await pool.query('UPDATE employee SET manager_id = $1 WHERE id = $2', [manager_id, employee_id]);
+   console.log(`Employee's manager updated successfully!`), result;
+  }
+  catch (err) {
+    console.error(`Employee's manager update failed!`, err);
+  }
+};
+
