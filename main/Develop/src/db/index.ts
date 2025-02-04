@@ -57,12 +57,16 @@ export const viewAllRoles = async (): Promise<void> => {
 export const viewAllEmployees = async (): Promise<void> => {
   try {
     const result: QueryResult = await pool.query(`
-        SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary, 
-               CONCAT(manager.first_name, ' ', manager.last_name) AS manager
-        FROM employee
+        SELECT employee.id,employee.first_name,employee.last_name,role.title,department.name AS department,role.salary,
+        CASE
+           WHEN manager.first_name IS NULL AND manager.last_name IS NULL THEN 'null'
+           ELSE CONCAT(manager.first_name, ' ', manager.last_name)
+        END AS manager
+          FROM employee
         JOIN role ON employee.role_id = role.id
         JOIN department ON role.department_id = department.id
-        LEFT JOIN employee manager ON employee.manager_id = manager.id order by id`);
+        LEFT JOIN employee manager ON employee.manager_id = manager.id
+        ORDER BY employee.id;`);
     const rows = result.rows;
 
     const col1Width = Math.max(...rows.map(row => row.id.toString().length), 4);
