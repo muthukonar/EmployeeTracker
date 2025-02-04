@@ -279,12 +279,102 @@ export const updateEmployeeManager = async (): Promise<void> => {
   ]);
 
   try {
-    const result: QueryResult = 
-  await pool.query('UPDATE employee SET manager_id = $1 WHERE id = $2', [manager_id, employee_id]);
-   console.log(`Employee's manager updated successfully!`), result;
+    const result: QueryResult =
+      await pool.query('UPDATE employee SET manager_id = $1 WHERE id = $2', [manager_id, employee_id]);
+    console.log(`Employee's manager updated successfully!`), result;
   }
   catch (err) {
     console.error(`Employee's manager update failed!`, err);
+  }
+};
+
+
+//Delete Department
+export const deleteDepartment = async (): Promise<void> => {
+  const departments = await pool.query('SELECT id, name FROM department');
+
+  const departmentChoices = departments.rows.map(department => ({
+    name: department.name,
+    value: department.id
+  }));
+
+  const { department_id } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'department_id',
+      message: 'Which department would you like to delete?',
+      choices: departmentChoices
+    }
+  ]);
+
+
+  try {
+    const result: QueryResult =
+      await pool.query('DELETE FROM department WHERE id = $1', [department_id]);
+    console.log(`Department deleted successfully!`), result;
+  }
+  catch (err) {
+    console.error(`Department delete failed!`, err);
+  }
+};
+
+//Delete Role
+
+export const deleteRole = async (): Promise<void> => {
+  const roles = await pool.query('SELECT id, title FROM role');
+
+  const roleChoices = roles.rows.map(role => ({
+    name: role.title,
+    value: role.id
+  }));
+
+  const { role_id } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'role_id',
+      message: 'Which role would you like to delete?',
+      choices: roleChoices
+    }
+  ]);
+
+  try {
+    const result: QueryResult =
+      await pool.query('DELETE FROM role WHERE id = $1', [role_id]);
+    console.log(`Role deleted successfully!`), result;
+  }
+  catch (err) {
+    console.error(`Role delete failed!`, err);
+  }
+};
+
+
+//Delete Employee
+
+export const deleteEmployee = async (): Promise<void> => {
+  const employees = await pool.query('SELECT id, first_name, last_name FROM employee');
+
+  const employeeChoices = employees.rows.map(employee => ({
+    name: `${employee.first_name} ${employee.last_name}`,
+    value: employee.id
+  }));
+
+  const { employee_id } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'employee_id',
+      message: 'Which employee would you like to delete?',
+      choices: employeeChoices
+    }
+  ]);
+
+
+  try {
+    const result: QueryResult =
+      await pool.query('DELETE FROM employee WHERE id = $1', [employee_id]);
+    console.log(`Employee deleted successfully!`), result;
+  }
+  catch (err) {
+    console.error(`Employee delete failed!`, err);
   }
 };
 
