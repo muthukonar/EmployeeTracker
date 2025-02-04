@@ -13,7 +13,8 @@ import {
   updateEmployeeManager,
   deleteDepartment,
   deleteRole,
-  deleteEmployee
+  deleteEmployee,
+  viewTotalBudgetByDepartment
 } from './db/index.js';
 
 const mainMenu = async () => {
@@ -33,6 +34,7 @@ const mainMenu = async () => {
       'Delete a department',
       'Delete a role',
       'Delete an employee',
+      'View total budget utilized by a department',
        'Exit'
     ]
   });
@@ -71,6 +73,9 @@ const mainMenu = async () => {
     case 'Delete an employee':
       await deleteEmployee();
       break;
+      case 'View total budget utilized by a department':
+        await viewTotalBudgetByDepartment();
+        break;
     case 'Exit':
 
       console.log('Exiting...');

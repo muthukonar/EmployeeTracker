@@ -378,3 +378,33 @@ export const deleteEmployee = async (): Promise<void> => {
   }
 };
 
+//Total Budget utilized by Department
+
+export const viewTotalBudgetByDepartment = async (): Promise<void> => {
+  const departments = await pool.query('SELECT id, name FROM department');
+
+  const departmentChoices = departments.rows.map(department => ({
+    name: department.name,
+    value: department.id
+  }));
+
+  const { department_id } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'department_id',
+      message: 'Select a department to view its total budget:',
+      choices: departmentChoices
+    }
+  ]);
+
+  const result = await pool.query(
+    `SELECT SUM(r.salary) AS total_budget
+     FROM employee e
+     JOIN role r ON e.role_id = r.id
+     WHERE r.department_id = $1`,
+    [department_id]
+  );
+
+  console.log(`Total utilized budget for the department: $${result.rows[0].total_budget}`);
+};
+
