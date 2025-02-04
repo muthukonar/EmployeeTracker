@@ -7,7 +7,7 @@ import { QueryResult } from 'pg';
 // Query all departments from the Department table
 export const viewAllDepartments = async (): Promise<void> => {
   try {
-    const result: QueryResult = await pool.query('SELECT * FROM department');
+    const result: QueryResult = await pool.query('SELECT * FROM department order by id');
     const rows = result.rows;
     const col1Width = Math.max(...rows.map(row => row.id.toString().length), 4);
     const col2Width = Math.max(...rows.map(row => row.name.length), 30);
@@ -29,7 +29,7 @@ export const viewAllRoles = async (): Promise<void> => {
   try {
     const result: QueryResult = await pool.query(`SELECT role.id, role.title, role.salary, department.name as department 
         FROM role
-        JOIN department ON role.department_id = department.id`);
+        JOIN department ON role.department_id = department.id order by id`);
     const rows = result.rows;
     const col1Width = Math.max(...rows.map(row => row.id.toString().length), 4);
     const col2Width = Math.max(...rows.map(row => row.title.length), 10);
@@ -62,7 +62,7 @@ export const viewAllEmployees = async (): Promise<void> => {
         FROM employee
         JOIN role ON employee.role_id = role.id
         JOIN department ON role.department_id = department.id
-        LEFT JOIN employee manager ON employee.manager_id = manager.id`);
+        LEFT JOIN employee manager ON employee.manager_id = manager.id order by id`);
     const rows = result.rows;
 
     const col1Width = Math.max(...rows.map(row => row.id.toString().length), 4);
@@ -71,7 +71,7 @@ export const viewAllEmployees = async (): Promise<void> => {
     const col4Width = Math.max(...rows.map(row => row.title.length), 15);
     const col5Width = Math.max(...rows.map(row => row.department.length), 15);
     const col6Width = Math.max(...rows.map(row => row.salary.toString().length), 15);
-    const col7Width = Math.max(...rows.map(row => row.manager ? row.manager.length : null), 15);
+    const col7Width = Math.max(...rows.map(row => row.manager.length), 15);
 
     console.log(` id${' '.repeat(col1Width - 3)} first_name${' '.repeat(col2Width - 10)} last_name${' '.repeat(col3Width - 9)} title ${' '.repeat(col4Width - 6)} department ${' '.repeat(col5Width - 11)} salary ${' '.repeat(col6Width - 7)} manager`);
     console.log(`---- ${'-'.repeat(col2Width)} ${'-'.repeat(col3Width)} ${'-'.repeat(col4Width)} ${'-'.repeat(col5Width)} ${'-'.repeat(col6Width)} ${'-'.repeat(col7Width)}`);
@@ -85,7 +85,7 @@ export const viewAllEmployees = async (): Promise<void> => {
         `${row.title}${' '.repeat(col4Width - row.title.length)}` +
         `${row.department}${' '.repeat(col5Width - row.department.length)}` +
         ` ${row.salary}${' '.repeat(col6Width - row.salary.toString().length)} ` +
-        `${row.manager}${' '.repeat(col7Width - row.manager ? row.manager.length : null)}`
+        `${row.manager}${' '.repeat(col7Width - row.manager.length)}`
       );
     });
 
@@ -198,10 +198,52 @@ export const addEmployee = async (): Promise<void> => {
   try {
     const result: QueryResult = await pool.query(
       'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)', [first_name, last_name, role_id, manager_id]);
-    console.log(`Employee ${first_name} ${last_name} added successfully!`), result;
+    console.log(`Employee "${first_name}.${last_name}" added successfully!`), result;
   }
   catch (err) {
-    console.error(`Error adding Role "${first_name} ${last_name}"`, err);
+    console.error(`Error adding Employee "${first_name}.${last_name}"`, err);
   }
 };
 
+
+//update an employee role 
+
+export const updateEmployeeRole = async (): Promise<void> => {
+  const roles = await pool.query('SELECT * FROM role');
+  const employees = await pool.query('SELECT id, first_name, last_name FROM employee');
+
+  const roleChoices = roles.rows.map(role => ({
+    name: role.title,
+    value: role.id
+  }));
+
+  const employeeChoices = employees.rows.map(employee => ({
+    name: `${employee.first_name} ${employee.last_name}`,
+    value: employee.id
+  }));
+
+  const { employee_id, role_id } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'employee_id',
+      message: 'Which employee role do you want to update?',
+      choices: employeeChoices
+    },
+    {
+      type: 'list',
+      name: 'role_id',
+      message: 'Which role do you want to assign to selected employee',
+      choices: roleChoices
+    }
+  ]);
+
+  try {
+    const result: QueryResult = await pool.query(
+      'UPDATE employee SET role_id = $1 WHERE id = $2', [role_id, employee_id]);
+    console.log(`Employee's role updated successfully!`), result;
+  }
+  catch (err) {
+    console.error(`Employee's role update failed!`, err);
+  }
+
+};
